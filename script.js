@@ -255,6 +255,7 @@ class CosmicUniverse {
 
         this.isDragging = false;
         this.prevPointerPos = { x: 0, y: 0 };
+        this.velocity = { x: 0, y: 0 };
         this.targetRotationY = 0;
         this.targetRotationX = 0;
         this.currentRotationY = 0;
@@ -271,7 +272,7 @@ class CosmicUniverse {
 
     init() {
         this.scene = new THREE.Scene();
-        this.scene.fog = new THREE.FogExp2(0x06030c, 0.002);
+        this.scene.fog = new THREE.FogExp2(0x000000, 0.0016);
 
         const aspect = window.innerWidth / window.innerHeight;
         this.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 2000);
@@ -284,6 +285,7 @@ class CosmicUniverse {
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.setClearColor(0x000000, 1);
 
         // Ánh sáng trắng trong trẻo và ấm áp
         const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
@@ -367,8 +369,13 @@ class CosmicUniverse {
         const isHero = sizeType === 'hero';
         const isShort = sizeType === 'short';
 
-        const fontSize = isHero ? 62 : (isShort ? 44 : 52);
-        const fontStr = `bold ${fontSize}px "Quicksand", "Nunito", "Montserrat", sans-serif`;
+        const fontSize = isHero ? 66 : (isShort ? 46 : 54);
+        
+        // Font chữ: mềm mại hoặc bo tròn hiện đại chuẩn video
+        const isCursive = text === 'mãi yêu em' || text === 'yêu em';
+        const fontStr = isCursive 
+            ? `bold ${Math.round(fontSize * 1.08)}px "Caveat", "Dancing Script", cursive`
+            : `bold ${fontSize}px "Quicksand", "Nunito", "Montserrat", sans-serif`;
 
         const tempCanvas = document.createElement('canvas');
         const tempCtx = tempCanvas.getContext('2d');
@@ -376,8 +383,8 @@ class CosmicUniverse {
         const metrics = tempCtx.measureText(text);
         const textWidth = Math.ceil(metrics.width);
 
-        const padX = isHero ? 60 : 44;
-        const padY = isHero ? 42 : 32;
+        const padX = isHero ? 68 : 50;
+        const padY = isHero ? 46 : 36;
         const canvas = document.createElement('canvas');
         canvas.width = Math.max(128, textWidth + padX * 2);
         canvas.height = Math.max(70, fontSize + padY * 2);
@@ -394,27 +401,45 @@ class CosmicUniverse {
         ctx.lineJoin = 'round';
         ctx.miterLimit = 2;
 
-        // Vòng phát sáng rộng bên ngoài (Aura hồng neon)
-        ctx.save();
-        ctx.strokeStyle = '#ff1493';
-        ctx.lineWidth = isHero ? 9 : 7;
-        ctx.shadowColor = '#ff2a85';
-        ctx.shadowBlur = isHero ? 20 : 16;
-        ctx.strokeText(text, cx, cy);
-        ctx.restore();
-
-        // Viền nét hồng cánh sen sắc nét
+        // 1. Vòng hào quang phát sáng rộng bên ngoài (Aura hồng neon rực rỡ)
         ctx.save();
         ctx.strokeStyle = '#ff007f';
-        ctx.lineWidth = isHero ? 5 : 4;
+        ctx.lineWidth = isHero ? 11 : 8;
         ctx.shadowColor = '#ff1493';
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = isHero ? 30 : 22;
         ctx.strokeText(text, cx, cy);
         ctx.restore();
 
-        // Lòng chữ trắng tinh khôi sáng rõ chuẩn TikTok i.dlove.vn
-        ctx.fillStyle = '#ffffff';
+        // 2. Viền nét hồng cánh sen sắc nét (Mid neon glow)
+        ctx.save();
+        ctx.strokeStyle = '#ff2a85';
+        ctx.lineWidth = isHero ? 6 : 4;
+        ctx.shadowColor = '#ff2a85';
+        ctx.shadowBlur = 12;
+        ctx.strokeText(text, cx, cy);
+        ctx.restore();
+
+        // 3. THÂN CHỮ MÀU HỒNG NEON TƯƠI SÁNG (THEO ĐÚNG YÊU CẦU NGƯỜI DÙNG & VIDEO)
+        // Tạo dải gradient từ hồng phấn sáng ở đỉnh đến hồng cánh sen đậm ở đáy
+        const grad = ctx.createLinearGradient(0, cy - fontSize * 0.45, 0, cy + fontSize * 0.45);
+        grad.addColorStop(0, '#ff99cc');   // Hồng sáng ngọt ngào
+        grad.addColorStop(0.5, '#ff3388');  // Hồng neon chuẩn
+        grad.addColorStop(1, '#e60067');   // Hồng magenta sắc sảo
+
+        ctx.save();
+        ctx.fillStyle = grad;
+        ctx.shadowColor = '#ff69b4';
+        ctx.shadowBlur = 10;
         ctx.fillText(text, cx, cy);
+        ctx.restore();
+
+        // 4. Lõi phát quang nhẹ ở tim chữ tạo hiệu ứng ống đèn neon lấp lánh
+        ctx.save();
+        ctx.fillStyle = '#ffe6f2';
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 4;
+        ctx.fillText(text, cx, cy);
+        ctx.restore();
 
         const texture = new THREE.CanvasTexture(canvas);
         texture.minFilter = THREE.LinearFilter;
@@ -430,7 +455,7 @@ class CosmicUniverse {
 
     createNeonPhotoCard(img) {
         const cardW = 320;
-        const cardH = 380;
+        const cardH = 390;
         const radius = 24;
         const pad = 6;
 
@@ -476,26 +501,36 @@ class CosmicUniverse {
             sx = (imgW - sw) / 2;
         } else {
             sh = imgW / targetAspect;
-            sy = Math.max(0, (imgH - sh) * 0.22); // Canh khuôn mặt xinh xắn
+            sy = Math.max(0, (imgH - sh) * 0.22); // Canh chuẩn khuôn mặt xinh xắn
         }
         ctx.drawImage(img, sx, sy, sw, sh, pad, pad, innerW, innerH);
+
+        // Phủ nhẹ lớp viền đen mờ mép trong để làm sâu bức ảnh trên nền đen
+        const innerVignette = ctx.createRadialGradient(
+            cardW / 2, cardH / 2, Math.min(innerW, innerH) * 0.45,
+            cardW / 2, cardH / 2, Math.max(innerW, innerH) * 0.68
+        );
+        innerVignette.addColorStop(0, 'rgba(0,0,0,0)');
+        innerVignette.addColorStop(1, 'rgba(0,0,0,0.22)');
+        ctx.fillStyle = innerVignette;
+        ctx.fillRect(pad, pad, innerW, innerH);
         ctx.restore();
 
-        // 2. Viền neon hồng phát sáng tinh tế
+        // 2. Viền neon hồng phát sáng tinh tế chuẩn video
         ctx.save();
         drawRRect(pad, pad, innerW, innerH, radius);
-        ctx.strokeStyle = '#ff2a85';
-        ctx.lineWidth = 4;
-        ctx.shadowColor = '#ff1493';
-        ctx.shadowBlur = 14;
+        ctx.strokeStyle = '#ff1493';
+        ctx.lineWidth = 4.5;
+        ctx.shadowColor = '#ff2a85';
+        ctx.shadowBlur = 20;
         ctx.stroke();
         ctx.restore();
 
-        // 3. Đường line trắng mảnh viền trong
+        // 3. Đường line viền trong hồng sáng mảnh
         ctx.save();
         drawRRect(pad + 1.5, pad + 1.5, innerW - 3, innerH - 3, radius - 1.5);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = 'rgba(255, 180, 220, 0.65)';
+        ctx.lineWidth = 1.4;
         ctx.stroke();
         ctx.restore();
 
@@ -511,13 +546,68 @@ class CosmicUniverse {
         canvas.height = 128;
         const ctx = canvas.getContext('2d');
 
+        // Hàm vẽ trái tim vector cân đối, sắc nét không bị vỡ hạt
+        const drawHeart = (cx, cy, size) => {
+            ctx.beginPath();
+            const topCurveHeight = size * 0.3;
+            ctx.moveTo(cx, cy + topCurveHeight);
+            ctx.bezierCurveTo(
+                cx, cy, 
+                cx - size / 2, cy, 
+                cx - size / 2, cy + topCurveHeight
+            );
+            ctx.bezierCurveTo(
+                cx - size / 2, cy + (size + topCurveHeight) / 2, 
+                cx, cy + (size + topCurveHeight) / 1.35, 
+                cx, cy + size
+            );
+            ctx.bezierCurveTo(
+                cx, cy + (size + topCurveHeight) / 1.35, 
+                cx + size / 2, cy + (size + topCurveHeight) / 2, 
+                cx + size / 2, cy + topCurveHeight
+            );
+            ctx.bezierCurveTo(
+                cx + size / 2, cy, 
+                cx, cy, 
+                cx, cy + topCurveHeight
+            );
+            ctx.closePath();
+        };
+
+        const cx = 64;
+        const cy = 24;
+        const size = 72;
+
+        // 1. Quầng hào quang phát sáng hồng ngoại vi
         ctx.save();
         ctx.shadowColor = '#ff1493';
-        ctx.shadowBlur = 18;
-        ctx.font = '74px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('❤️', 64, 68);
+        ctx.shadowBlur = 26;
+        drawHeart(cx, cy, size);
+        ctx.fillStyle = '#ff0055';
+        ctx.fill();
+        ctx.restore();
+
+        // 2. Lõi trái tim gradient đỏ ruby ấm áp
+        ctx.save();
+        ctx.shadowColor = '#ff2a85';
+        ctx.shadowBlur = 14;
+        const grad = ctx.createRadialGradient(cx, cy + 24, 6, cx, cy + 36, 48);
+        grad.addColorStop(0, '#ff4d79');
+        grad.addColorStop(0.65, '#e60039');
+        grad.addColorStop(1, '#a30020');
+        drawHeart(cx, cy, size);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.restore();
+
+        // 3. Đốm sáng phản chiếu nhẹ
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(cx - 18, cy + 20, 4.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 5;
+        ctx.fill();
         ctx.restore();
 
         const texture = new THREE.CanvasTexture(canvas);
@@ -529,29 +619,32 @@ class CosmicUniverse {
     buildGalaxyContent() {
         const isMobile = (window.innerWidth / window.innerHeight) < 1;
 
-        // 1. TẠO CÂU CHÚC TIÊU ĐIỂM (HERO WISH) CHÍNH GIỮA TIỀN CẢNH: "Chúc em luôn vui vẻ và hạnh phúc"
-        const heroWish = this.createNeonWishTexture("Chúc em luôn vui vẻ và hạnh phúc", "hero");
+        // 1. TẠO CÂU CHÚC TIÊU ĐIỂM (HERO WISH) CHÍNH GIỮA TIỀN CẢNH: "Chúc em luôn yêu đời" CHUẨN TIKTOK
+        const heroWish = this.createNeonWishTexture("Chúc em luôn yêu đời", "hero");
         const heroMat = new THREE.SpriteMaterial({
             map: heroWish.texture,
             transparent: true,
             depthWrite: false
         });
         const heroSprite = new THREE.Sprite(heroMat);
-        const heroW = isMobile ? 36 : 42;
-        heroSprite.scale.set(heroW, heroW / heroWish.aspect, 1);
+        const heroW = isMobile ? 38 : 44;
+        const heroH = heroW / heroWish.aspect;
+        heroSprite.scale.set(heroW, heroH, 1);
         heroSprite.position.set(0, 1.2, isMobile ? 70 : 66);
         heroSprite.userData = {
             isClickable: true,
             type: 'wish',
             basePos: new THREE.Vector3(0, 1.2, isMobile ? 70 : 66),
+            baseW: heroW,
+            baseH: heroH,
             floatOffset: 0
         };
         this.interactiveGroup.add(heroSprite);
         this.clickableObjects.push(heroSprite);
 
-        // 2. DANH SÁCH TOÀN BỘ CÁC LỜI CHÚC & TỪ NGỮ ĐA TẦNG (CHUẨN TIKTOK I.DLOVE.VN)
+        // 2. DANH SÁCH TOÀN BỘ CÁC LỜI CHÚC & TỪ NGỮ ĐA TẦNG MÀU HỒNG (CHUẨN TIKTOK I.DLOVE.VN)
         const wishesData = [
-            { text: "Chúc em luôn yêu đời", type: "medium" },
+            { text: "Chúc em luôn vui vẻ và hạnh phúc", type: "medium" },
             { text: "Chúc em luôn xinh đẹp", type: "medium" },
             { text: "yêu em", type: "short" },
             { text: "20/10", type: "short" },
@@ -583,10 +676,13 @@ class CosmicUniverse {
             { text: "20/10", type: "short" },
             { text: "yêu em", type: "short" },
             { text: "Luôn rạng rỡ như ánh mặt trời", type: "medium" },
-            { text: "20/10", type: "short" }
+            { text: "Chúc em luôn yêu đời", type: "medium" },
+            { text: "mãi yêu em", type: "short" },
+            { text: "20/10", type: "short" },
+            { text: "yêu em", type: "short" }
         ];
 
-        // 3. TẠO 16 TRÁI TIM PHÁT SÁNG BAY XUNG QUANH
+        // 3. TẠO 32 TRÁI TIM ĐỎ HỒNG PHÁT SÁNG BAY XUNG QUANH
         const heartTex = this.createGlowingHeartTexture();
         const heartMat = new THREE.SpriteMaterial({
             map: heartTex,
@@ -594,18 +690,18 @@ class CosmicUniverse {
             depthWrite: false
         });
 
-        // 4. TẬP HỢP TOÀN BỘ 90 PHẦN TỬ (41 ẢNH + 33 LỜI CHÚC + 16 TRÁI TIM) VÀ TRỘN ĐỀU
+        // 4. TẬP HỢP TOÀN BỘ PHẦN TỬ (41 ẢNH + 36 LỜI CHÚC + 32 TRÁI TIM) VÀ TRỘN ĐỀU
         const items = [];
         CONFIG.galaxyPhotos.forEach(src => items.push({ kind: 'photo', src }));
         wishesData.forEach(w => items.push({ kind: 'wish', text: w.text, sizeType: w.type }));
-        for (let h = 0; h < 16; h++) {
+        for (let h = 0; h < 32; h++) {
             items.push({ kind: 'heart' });
         }
 
-        // Shuffle nhẹ theo bước nhảy số nguyên tố để phân bổ đều khắp không gian
+        // Shuffle theo số nguyên tố để phân bổ đều khắp không gian
         const totalItems = items.length;
         const shuffled = [];
-        const step = 17;
+        const step = 19;
         const visited = new Set();
         for (let i = 0; i < totalItems; i++) {
             let idx = (i * step) % totalItems;
@@ -621,12 +717,12 @@ class CosmicUniverse {
         const goldenAngle = 2.39996323;
 
         shuffled.forEach((item, k) => {
-            const yNorm = 1 - ((k + 0.5) / totalItems) * 2; // từ đỉnh trên xuống đáy dưới
+            const yNorm = 1 - ((k + 0.5) / totalItems) * 2;
             const rNorm = Math.sqrt(Math.max(0.04, 1 - yNorm * yNorm));
             const theta = k * goldenAngle;
 
-            // Biến thiên bán kính r để tạo độ dày 3D đa tầng mềm mại
-            const radiusJitter = 0.82 + ((k * 37) % 100) / 100 * 0.34;
+            // Biến thiên bán kính r để tạo độ sâu 3D đa tầng mềm mại
+            const radiusJitter = 0.82 + ((k * 37) % 100) / 100 * 0.36;
             const r = baseR * radiusJitter;
 
             const x = Math.cos(theta) * rNorm * r;
@@ -643,14 +739,16 @@ class CosmicUniverse {
                         depthWrite: false
                     });
                     const sprite = new THREE.Sprite(mat);
-                    const photoW = isMobile ? 15.5 : 17.5;
-                    const photoH = photoW * (380 / 320);
+                    const photoW = isMobile ? 16 : 18;
+                    const photoH = photoW * (390 / 320);
                     sprite.scale.set(photoW, photoH, 1);
                     sprite.position.set(x, y, z);
                     sprite.userData = {
                         isClickable: true,
                         type: 'photo',
                         basePos: new THREE.Vector3(x, y, z),
+                        baseW: photoW,
+                        baseH: photoH,
                         floatOffset: k * 0.22
                     };
                     this.interactiveGroup.add(sprite);
@@ -666,25 +764,29 @@ class CosmicUniverse {
                 });
                 const sprite = new THREE.Sprite(mat);
                 const wScale = item.sizeType === 'short' ? (isMobile ? 15 : 18) : (isMobile ? 26 : 30);
-                sprite.scale.set(wScale, wScale / wishObj.aspect, 1);
+                const hScale = wScale / wishObj.aspect;
+                sprite.scale.set(wScale, hScale, 1);
                 sprite.position.set(x, y, z);
                 sprite.userData = {
                     isClickable: true,
                     type: 'wish',
                     basePos: new THREE.Vector3(x, y, z),
+                    baseW: wScale,
+                    baseH: hScale,
                     floatOffset: k * 0.22
                 };
                 this.interactiveGroup.add(sprite);
                 this.clickableObjects.push(sprite);
             } else if (item.kind === 'heart') {
                 const sprite = new THREE.Sprite(heartMat);
-                const hSize = isMobile ? 5.5 : 6.5;
+                const hSize = isMobile ? 5.8 : 6.8;
                 sprite.scale.set(hSize, hSize, 1);
                 sprite.position.set(x, y, z);
                 sprite.userData = {
                     isClickable: true,
                     type: 'heart',
                     basePos: new THREE.Vector3(x, y, z),
+                    baseSize: hSize,
                     floatOffset: k * 0.22
                 };
                 this.interactiveGroup.add(sprite);
@@ -700,6 +802,7 @@ class CosmicUniverse {
             this.pointerDownX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
             this.pointerDownY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
             this.prevPointerPos = { x: this.pointerDownX, y: this.pointerDownY };
+            this.velocity = { x: 0, y: 0 };
             this.hasMovedSignificantly = false;
         };
 
@@ -715,9 +818,13 @@ class CosmicUniverse {
                 this.hasMovedSignificantly = true;
             }
 
-            this.targetRotationY += deltaX * 0.005;
-            this.targetRotationX += deltaY * 0.0035;
-            this.targetRotationX = Math.max(-0.48, Math.min(0.48, this.targetRotationX));
+            // Ghi nhận vận tốc vuốt tay để tạo lực quán tính
+            this.velocity.y = deltaX * 0.0035;
+            this.velocity.x = deltaY * 0.0025;
+
+            this.targetRotationY += this.velocity.y;
+            this.targetRotationX += this.velocity.x;
+            this.targetRotationX = Math.max(-0.55, Math.min(0.55, this.targetRotationX));
 
             this.prevPointerPos = { x: clientX, y: clientY };
         };
@@ -804,7 +911,13 @@ class CosmicUniverse {
             this.currentRotationX += (this.targetRotationX - this.currentRotationX) * 0.06;
 
             if (!this.isDragging) {
-                this.targetRotationY += 0.0012;
+                // Áp dụng lực quán tính mượt mà khi thả tay ra và tự quay nhẹ
+                this.targetRotationY += (this.velocity.y || 0) + 0.0012;
+                this.targetRotationX += (this.velocity.x || 0);
+                this.targetRotationX = Math.max(-0.55, Math.min(0.55, this.targetRotationX));
+
+                if (this.velocity.y) this.velocity.y *= 0.94;
+                if (this.velocity.x) this.velocity.x *= 0.94;
             }
 
             this.interactiveGroup.rotation.y = this.currentRotationY;
@@ -813,11 +926,27 @@ class CosmicUniverse {
             this.cameraZ += (this.targetCameraZ - this.cameraZ) * 0.08;
             this.camera.position.z = this.cameraZ;
 
-            // Micro-animation trôi nổi nhẹ nhàng cho từng phần tử
+            // Micro-animation trôi nổi & nhịp thở sống động cho từng phần tử giống video
             this.interactiveGroup.children.forEach((child) => {
                 if (child.userData && child.userData.basePos) {
                     const bp = child.userData.basePos;
-                    child.position.y = bp.y + Math.sin(time * 1.6 + child.userData.floatOffset) * 1.6;
+                    const offset = child.userData.floatOffset || 0;
+
+                    // 1. Dao động lượn sóng trong không gian 3D
+                    child.position.y = bp.y + Math.sin(time * 1.5 + offset) * 1.8;
+                    child.position.x = bp.x + Math.sin(time * 0.8 + offset) * 0.6;
+
+                    // 2. Hiệu ứng thở nhẹ nhàng cho ảnh và chữ hồng
+                    if (child.userData.type === 'photo') {
+                        const pulse = 1 + Math.sin(time * 1.8 + offset) * 0.035;
+                        child.scale.set(child.userData.baseW * pulse, child.userData.baseH * pulse, 1);
+                    } else if (child.userData.type === 'wish') {
+                        const pulse = 1 + Math.sin(time * 1.5 + offset) * 0.025;
+                        child.scale.set(child.userData.baseW * pulse, child.userData.baseH * pulse, 1);
+                    } else if (child.userData.type === 'heart') {
+                        const beat = 1 + Math.sin(time * 2.8 + offset) * 0.12;
+                        child.scale.set(child.userData.baseSize * beat, child.userData.baseSize * beat, 1);
+                    }
                 }
             });
         }
