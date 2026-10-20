@@ -1,0 +1,905 @@
+/* ==========================================================================
+   RESET & BIẾN TOÀN CỤC
+   ========================================================================== */
+:root {
+    --bg-dark: #07060d;
+    --pink-neon: #ff2a85;
+    --pink-glow: rgba(255, 42, 133, 0.55);
+    --pink-soft: #ff85b3;
+    --white: #ffffff;
+    --font-heading: 'Playfair Display', serif;
+    --font-handwriting: 'Dancing Script', cursive;
+    --font-casual: 'Caveat', cursive;
+    --font-sans: 'Montserrat', sans-serif;
+    --transition-smooth: cubic-bezier(0.25, 1, 0.5, 1);
+    --transition-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    font-family: var(--font-sans);
+    color: #fff;
+    touch-action: none;
+}
+
+/* ==========================================================================
+   CANVAS THREE.JS (VŨ TRỤ SAO 3D)
+   ========================================================================== */
+#cosmic-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    display: block;
+}
+
+/* ==========================================================================
+   NÚT BẬT / TẮT NHẠC (MUSIC BUTTON)
+   ========================================================================== */
+.music-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 105, 180, 0.4);
+    padding: 7px 14px;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(255, 42, 133, 0.25);
+    transition: all 0.3s ease;
+}
+
+.music-btn:hover {
+    transform: scale(1.05);
+    border-color: var(--pink-neon);
+    box-shadow: 0 6px 28px rgba(255, 42, 133, 0.5);
+}
+
+.music-disc {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff2a85, #8a2387);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    box-shadow: 0 0 12px var(--pink-glow);
+}
+
+.music-btn.playing .music-disc {
+    animation: rotateDisc 4s linear infinite;
+}
+
+@keyframes rotateDisc {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.music-waves {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    height: 14px;
+}
+
+.wave {
+    width: 3px;
+    height: 5px;
+    background: var(--pink-soft);
+    border-radius: 3px;
+    transition: height 0.2s ease;
+}
+
+.music-btn.playing .wave:nth-child(1) { animation: wavePulse 0.9s ease-in-out infinite alternate; }
+.music-btn.playing .wave:nth-child(2) { animation: wavePulse 0.7s ease-in-out 0.2s infinite alternate; }
+.music-btn.playing .wave:nth-child(3) { animation: wavePulse 1.1s ease-in-out 0.4s infinite alternate; }
+
+@keyframes wavePulse {
+    0% { height: 4px; }
+    100% { height: 16px; background: #fff; box-shadow: 0 0 8px var(--pink-neon); }
+}
+
+/* ==========================================================================
+   LỜI BÀI HÁT NỔI (FLOATING LYRICS SUBTITLES GIỐNG VIDEO 20-10)
+   ========================================================================== */
+.floating-lyrics {
+    position: fixed;
+    bottom: 85px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 500;
+    pointer-events: none;
+    text-align: center;
+    width: 90%;
+    max-width: 650px;
+    transition: opacity 0.5s ease;
+}
+
+#lyrics-text {
+    font-family: var(--font-casual), var(--font-handwriting), cursive;
+    font-size: clamp(20px, 4.5vw, 27px);
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.9), 0 0 25px var(--pink-neon), 0 0 45px rgba(255, 42, 133, 0.7);
+    letter-spacing: 0.5px;
+    display: inline-block;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* ==========================================================================
+   CONTAINER CÁC GIAI ĐOẠN (PHASES)
+   ========================================================================== */
+.phase-container {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s var(--transition-smooth), visibility 0.8s ease;
+}
+
+.phase-container.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* ==========================================================================
+   GIAI ĐOẠN 1: BÓ HOA BẤT NGỜ
+   ========================================================================== */
+#phase1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.bloom-wrapper {
+    position: relative;
+    width: min(88vw, 470px);
+    aspect-ratio: 896 / 1200;
+    max-height: 78vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0 auto;
+}
+
+/* Quầng sáng quanh bó hoa - Tắt hoàn toàn để không còn viền đỏ/đen */
+.flower-glow {
+    display: none;
+}
+
+/* Khung bó hoa */
+.bouquet-box {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.6s var(--transition-spring), opacity 0.6s ease, filter 0.6s ease;
+    z-index: 2;
+}
+
+.bouquet-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: none; /* Khử sạch viền đỏ xung quanh bó hoa */
+    animation: gentleFloat 4s ease-in-out infinite alternate;
+    transition: transform 0.3s ease;
+}
+
+.bouquet-box:hover .bouquet-img {
+    transform: scale(1.03);
+    filter: none; /* Không viền đỏ khi hover */
+}
+
+@keyframes gentleFloat {
+    0% { transform: translateY(0px) rotate(0deg); }
+    100% { transform: translateY(-10px) rotate(1deg); }
+}
+
+/* Khi bó hoa thu nhỏ biến mất sang Giai đoạn 2 */
+.bouquet-box.disappearing {
+    transform: scale(0) rotate(270deg) !important;
+    opacity: 0 !important;
+    filter: brightness(4) blur(12px) !important;
+    transition: all 0.9s cubic-bezier(0.7, 0, 0.3, 1) !important;
+}
+
+/* CÁC BỨC ẢNH CẮT NỀN BUNG NỞ TRÊN BÓ HOA (GIAI ĐOẠN 1) - TÁCH NỀN TỰ NHIÊN NHƯ VIDEO */
+.sprout-photos-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.sprout-photo {
+    position: absolute;
+    width: 25%;
+    height: 26%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.85s var(--transition-spring), opacity 0.5s ease;
+    cursor: pointer;
+    pointer-events: auto;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+    box-shadow: none;
+    filter: none; /* Khử sạch viền đen và viền đỏ quanh hình ảnh em bé */
+}
+
+.sprout-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: bottom center;
+    display: block;
+    background: transparent;
+}
+
+/* Tọa độ gốc tương ứng chính xác vị trí 6 bông hoa trên bó bông */
+.sprout-photo:nth-child(1) { top: 30%; left: 32%; }
+.sprout-photo:nth-child(2) { top: 26%; left: 50%; }
+.sprout-photo:nth-child(3) { top: 30%; left: 68%; }
+.sprout-photo:nth-child(4) { top: 44%; left: 29%; }
+.sprout-photo:nth-child(5) { top: 46%; left: 50%; }
+.sprout-photo:nth-child(6) { top: 44%; left: 71%; }
+
+/* Khi chạm lần 1: Mỗi bông hoa bung nở 1 ảnh của em bé, gọn gàng bên trong bó hoa */
+/* 1. Đỉnh trên bên trái (Bông kem số 1) */
+.sprout-photos-container.bloomed .sprout-photo:nth-child(1) {
+    transform: translate(-50%, -50%) scale(0.85) rotate(-6deg);
+    opacity: 1;
+    z-index: 6;
+    transition-delay: 0.05s;
+}
+
+/* 2. Đỉnh trên chính giữa (Bông hồng số 2) */
+.sprout-photos-container.bloomed .sprout-photo:nth-child(2) {
+    transform: translate(-50%, -50%) scale(0.82) rotate(0deg);
+    opacity: 1;
+    z-index: 7;
+    transition-delay: 0.12s;
+}
+
+/* 3. Đỉnh trên bên phải (Bông hồng số 3) */
+.sprout-photos-container.bloomed .sprout-photo:nth-child(3) {
+    transform: translate(-50%, -50%) scale(0.85) rotate(6deg);
+    opacity: 1;
+    z-index: 6;
+    transition-delay: 0.22s;
+}
+
+/* 4. Giữa bên trái (Bông hồng nhỏ số 4) */
+.sprout-photos-container.bloomed .sprout-photo:nth-child(4) {
+    transform: translate(-50%, -50%) scale(0.88) rotate(-4deg);
+    opacity: 1;
+    z-index: 8;
+    transition-delay: 0.18s;
+}
+
+/* 5. Chính giữa bó hoa (Bông hồng lớn nhất số 5) */
+.sprout-photos-container.bloomed .sprout-photo:nth-child(5) {
+    transform: translate(-50%, -50%) scale(0.98) rotate(0deg);
+    opacity: 1;
+    z-index: 10;
+    transition-delay: 0.15s;
+}
+
+/* 6. Giữa bên phải (Bông kem số 6) */
+.sprout-photos-container.bloomed .sprout-photo:nth-child(6) {
+    transform: translate(-50%, -50%) scale(0.88) rotate(4deg);
+    opacity: 1;
+    z-index: 8;
+    transition-delay: 0.28s;
+}
+
+.sprout-photos-container.disappearing .sprout-photo {
+    transform: translate(-50%, -50%) scale(0) rotate(180deg) !important;
+    opacity: 0 !important;
+    transition: all 0.6s cubic-bezier(0.7, 0, 0.3, 1) !important;
+}
+
+/* Dòng chữ hướng dẫn Giai đoạn 1 */
+.guide-box {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.guide-text {
+    font-size: clamp(16px, 3.8vw, 20px);
+    font-weight: 500;
+    color: #ffffff;
+    text-shadow: 0 0 15px var(--pink-neon), 0 0 25px rgba(255, 42, 133, 0.7);
+    letter-spacing: 0.8px;
+    padding: 8px 22px;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    animation: pulseGuide 2.2s infinite ease-in-out;
+    transition: all 0.4s ease;
+}
+
+@keyframes pulseGuide {
+    0%, 100% { transform: translateY(0); box-shadow: 0 0 15px rgba(255, 42, 133, 0.3); }
+    50% { transform: translateY(-4px); box-shadow: 0 0 25px rgba(255, 42, 133, 0.65); }
+}
+
+.finger-hint {
+    font-size: 24px;
+    animation: tapTap 1.5s infinite ease-in-out;
+}
+
+@keyframes tapTap {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-8px) scale(1.15); }
+}
+
+/* ==========================================================================
+   GIAI ĐOẠN 2: VŨ TRỤ LỜI CHÚC 3D
+   ========================================================================== */
+#phase2 {
+    pointer-events: none;
+}
+
+.hud-top {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    pointer-events: none;
+}
+
+.hud-badge {
+    font-family: var(--font-heading);
+    font-size: clamp(13px, 2.8vw, 17px);
+    letter-spacing: 2px;
+    color: #fff;
+    background: rgba(255, 42, 133, 0.2);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 105, 180, 0.4);
+    padding: 7px 22px;
+    border-radius: 50px;
+    box-shadow: 0 0 20px rgba(255, 42, 133, 0.3);
+    text-transform: uppercase;
+}
+
+.hud-bottom {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    pointer-events: none;
+    width: 90%;
+    max-width: 580px;
+    text-align: center;
+}
+
+.hud-hint {
+    font-size: clamp(12px, 2.8vw, 14px);
+    color: rgba(255, 240, 246, 0.9);
+    background: rgba(12, 8, 24, 0.75);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 8px 18px;
+    border-radius: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   GIAI ĐOẠN 3: PHONG BÌ THƯ & BỨC THƯ TÌNH (MODAL)
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(6, 4, 12, 0.82);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.6s var(--transition-smooth), visibility 0.6s ease;
+}
+
+.modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2100;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: var(--pink-neon);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 0 25px var(--pink-glow);
+}
+
+.letter-scene {
+    position: relative;
+    width: 92%;
+    max-width: 600px;
+    height: 86vh;
+    max-height: 760px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1200px;
+}
+
+/* 1. PHONG BÌ THƯ 3D (GIỐNG VIDEO 00:26) */
+.envelope-wrapper {
+    position: absolute;
+    width: clamp(290px, 82vw, 440px);
+    height: clamp(195px, 56vw, 290px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.6s ease, opacity 0.5s ease;
+    z-index: 20;
+}
+
+.envelope {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #fdf8f9 0%, #fbe9ec 45%, #f6d1d8 100%);
+    border-radius: 12px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(255, 105, 180, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-style: preserve-3d;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Hoa màu nước góc trên và dưới của phong bì */
+.envelope-flower {
+    position: absolute;
+    width: clamp(100px, 28vw, 150px);
+    pointer-events: none;
+    z-index: 6;
+    opacity: 0.88;
+}
+
+.flower-tl {
+    top: -15px;
+    left: -15px;
+}
+
+.flower-br {
+    bottom: -15px;
+    right: -15px;
+    transform: rotate(180deg);
+}
+
+/* Nắp phong bì mở 3D */
+.envelope-flap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 58%;
+    background: linear-gradient(180deg, #fce4ec, #f8bbd0);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+}
+
+/* Con dấu sáp màu đỏ niêm phong hình tròn */
+.wax-seal {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #e63946 0%, #ba181b 55%, #660708 100%);
+    box-shadow: 0 4px 18px rgba(186, 24, 27, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed rgba(255, 255, 255, 0.35);
+    cursor: pointer;
+    transition: transform 0.3s ease, opacity 0.4s ease;
+}
+
+.wax-seal:hover {
+    transform: translateX(-50%) scale(1.1);
+}
+
+.wax-seal.broken {
+    transform: translateX(-50%) scale(1.5);
+    opacity: 0;
+}
+
+.seal-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.seal-text {
+    font-family: var(--font-heading);
+    font-size: 8px;
+    font-weight: 700;
+    color: #ffccd5;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* Túi phong bì bên dưới */
+.envelope-pocket {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 65%;
+    background: linear-gradient(0deg, #f48fb1, #f8bbd0);
+    clip-path: polygon(0 100%, 100% 100%, 100% 15%, 50% 65%, 0 15%);
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* Nội dung chữ trên phong bì (giống video 00:26) */
+.envelope-content {
+    position: relative;
+    z-index: 7;
+    text-align: center;
+    pointer-events: none;
+    margin-top: 15px;
+}
+
+.envelope-top-sub {
+    font-size: 12px;
+    letter-spacing: 2.5px;
+    color: #880e4f;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.envelope-heart-sym {
+    color: #d81b60;
+    font-size: 14px;
+    margin: 3px 0;
+}
+
+.envelope-date {
+    font-family: var(--font-heading);
+    font-size: clamp(26px, 6.5vw, 34px);
+    font-weight: 700;
+    color: #4a1525;
+    letter-spacing: 3px;
+    line-height: 1.1;
+}
+
+.envelope-bot-sub {
+    font-family: var(--font-handwriting);
+    font-size: clamp(18px, 4.5vw, 22px);
+    color: #6a1a32;
+    font-weight: 700;
+    margin-top: 3px;
+}
+
+.envelope-hint {
+    margin-top: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    background: rgba(255, 42, 133, 0.3);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 7px 18px;
+    border-radius: 30px;
+    letter-spacing: 0.5px;
+    animation: pulseGuide 2s infinite ease-in-out;
+}
+
+/* Khi phong bì mở */
+.envelope-wrapper.opened .envelope-flap {
+    transform: rotateX(180deg);
+}
+
+.envelope-wrapper.opened {
+    opacity: 0;
+    transform: translateY(120px) scale(0.85);
+    pointer-events: none;
+    transition: opacity 0.7s ease 0.5s, transform 0.7s ease 0.5s;
+}
+
+/* 2. TỜ GIẤY VIẾT THƯ (LETTER PAPER - GIỐNG VIDEO 00:28) */
+.letter-paper {
+    position: relative;
+    width: 100%;
+    max-height: 94%;
+    background: #fffcf7;
+    background-image: radial-gradient(#f3ebe0 1px, transparent 1px);
+    background-size: 24px 24px;
+    border-radius: 16px;
+    padding: clamp(22px, 4.5vw, 36px);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75), 0 0 40px rgba(255, 105, 180, 0.35);
+    color: #2e1520;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid #fce4ec;
+    opacity: 0;
+    transform: translateY(60px) scale(0.9);
+    transition: opacity 0.8s var(--transition-smooth), transform 0.8s var(--transition-spring);
+    pointer-events: none;
+    z-index: 30;
+}
+
+.letter-paper.revealed {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Hoa trang trí góc trên bên trái của bức thư */
+.paper-flower {
+    position: absolute;
+    width: clamp(120px, 28vw, 180px);
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+.flower-top-left {
+    top: -15px;
+    left: -15px;
+}
+
+/* Tiêu đề bức thư */
+.letter-header {
+    text-align: center;
+    border-bottom: 1.5px dashed #f8bbd0;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 2;
+}
+
+.letter-title {
+    font-family: var(--font-handwriting);
+    font-size: clamp(26px, 6vw, 36px);
+    font-weight: 700;
+    color: #a31525;
+    letter-spacing: 0.5px;
+}
+
+/* Nội dung thư (Hiệu ứng gõ máy Typewriter) */
+.letter-body {
+    flex: 1;
+    font-family: var(--font-casual), var(--font-handwriting), cursive;
+    font-size: clamp(20px, 4.4vw, 25px);
+    line-height: 1.85;
+    color: #2b1720;
+    font-weight: 600;
+    min-height: 170px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 2;
+}
+
+.letter-line {
+    margin-bottom: 8px;
+    display: block;
+}
+
+.typewriter-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.2em;
+    background: #ff2a85;
+    vertical-align: middle;
+    margin-left: 2px;
+    animation: blinkCursor 0.75s infinite;
+}
+
+@keyframes blinkCursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Chân thư & Khung ảnh lồng hoa góc dưới bên phải giống video 00:28 */
+.letter-footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    border-top: 1px solid #fce4ec;
+    padding-top: 16px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
+}
+
+.letter-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    background: #fff;
+    border: 1.5px solid #f48fb1;
+    color: #c2185b;
+    padding: 7px 15px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(244, 143, 177, 0.25);
+}
+
+.action-btn:hover {
+    background: #fce4ec;
+    transform: translateY(-2px);
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, #ff2a85, #ff65a3);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 42, 133, 0.35);
+}
+
+.action-btn.primary:hover {
+    background: linear-gradient(135deg, #e0176d, #f05492);
+}
+
+/* Khung ảnh chân dung lồng hoa góc dưới bên phải (Sắc nét, to đẹp, không bị mờ đục) */
+.letter-photo-frame {
+    position: relative;
+    width: clamp(145px, 32vw, 200px);
+    max-width: 225px;
+    height: auto;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.letter-portrait-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 26px rgba(255, 42, 133, 0.28));
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+}
+
+.photo-flower-wreath {
+    display: none;
+}
+
+/* ==========================================================================
+   HẠT TIM BAY KHI THẢ TIM
+   ========================================================================== */
+#heart-burst-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 3000;
+}
+
+.flying-heart {
+    position: absolute;
+    pointer-events: none;
+    animation: floatHeart 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes floatHeart {
+    0% { transform: translate(0, 0) scale(0.6) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(1.4) rotate(var(--tr)); opacity: 0; }
+}
+
+/* ==========================================================================
+   RESPONSIVE CHO ĐIỆN THOẠI & IPAD
+   ========================================================================== */
+@media (max-width: 768px) {
+    .music-btn {
+        top: 14px;
+        right: 14px;
+        padding: 5px 12px;
+    }
+    .floating-lyrics {
+        bottom: 70px;
+    }
+    .hud-top {
+        top: 16px;
+    }
+    .hud-bottom {
+        bottom: 16px;
+    }
+    .close-btn {
+        top: 14px;
+        right: 14px;
+        width: 36px;
+        height: 36px;
+        font-size: 17px;
+    }
+    .letter-paper {
+        padding: 20px 16px;
+    }
+    .letter-footer {
+        flex-direction: column-reverse;
+        align-items: center;
+        gap: 12px;
+    }
+    .letter-photo-frame {
+        width: clamp(155px, 46vw, 215px);
+        margin: 8px auto 0 auto;
+    }
+}

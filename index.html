@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dành Tặng Em Bé Anh Anh - Món Quà 20/10 💖</title>
+    <!-- Google Fonts hỗ trợ đầy đủ tiếng Việt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <!-- Nền vũ trụ 3D (Three.js WebGL Canvas) -->
+    <canvas id="cosmic-canvas"></canvas>
+
+    <!-- Nút bật/tắt nhạc góc trên bên phải -->
+    <div id="music-control" class="music-btn" title="Bật / Tắt nhạc">
+        <div class="music-disc" id="music-disc">
+            <span class="music-icon">🎵</span>
+        </div>
+        <div class="music-waves">
+            <span class="wave"></span>
+            <span class="wave"></span>
+            <span class="wave"></span>
+        </div>
+    </div>
+
+    <!-- Phát trực tiếp bản nhạc lãng mạn từ video 20-10.mp4 -->
+    <audio id="bgm-audio" src="20-10.mp4" loop preload="auto"></audio>
+
+    <!-- Dòng chữ lời bài hát nổi lơ lửng đồng bộ theo nhạc (Floating Lyrics) giống video -->
+    <div id="floating-lyrics" class="floating-lyrics">
+        <span id="lyrics-text">" Vẫn gần em thôi dù xa cách phương trời "</span>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- GIAI ĐOẠN 1: BÓ HOA BẤT NGỜ -->
+    <!-- ============================================== -->
+    <section id="phase1" class="phase-container active">
+        <!-- Vòng hào quang & hạt lấp lánh quanh bó hoa -->
+        <div class="bloom-wrapper" id="bloom-wrapper">
+            <div class="flower-glow"></div>
+
+            <!-- Bó hoa hồng chính giữa (6 bông hoa) -->
+            <div class="bouquet-box" id="bouquet-box">
+                <img src="flower.png?v=5" alt="Bó hoa hồng tặng em" id="bouquet-img" class="bouquet-img">
+                <div class="sparkle-stars" id="sparkle-stars"></div>
+            </div>
+
+            <!-- 5 bức ảnh chân dung bung nở từ bó hoa khi chạm lần 1 -->
+            <div class="sprout-photos-container" id="sprout-photos-container">
+                <!-- Được tạo tự động từ mảng ảnh của Em Bé Anh Anh -->
+            </div>
+        </div>
+
+        <!-- Dòng chữ hướng dẫn tương tác -->
+        <div class="guide-box" id="guide-box-1">
+            <p id="guide-text-1" class="guide-text">Chạm vào bó hoa</p>
+            <div class="finger-hint" id="finger-hint">👆</div>
+        </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- GIAI ĐOẠN 2: VŨ TRỤ LỜI CHÚC 3D -->
+    <!-- ============================================== -->
+    <section id="phase2" class="phase-container">
+        <!-- HUD hướng dẫn điều khiển 3D -->
+        <div class="hud-top">
+            <div class="hud-badge">✨ Vũ Trụ Ngàn Lời Yêu ✨</div>
+        </div>
+
+        <div class="hud-bottom">
+            <p class="hud-hint">💫 Vợ yêu Chạm vào Trái tim hoặc Bức ảnh để mở thư nhóoo 💌</p>
+        </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- GIAI ĐOẠN 3: PHONG BÌ THƯ & BỨC THƯ TÌNH (MODAL) -->
+    <!-- ============================================== -->
+    <div id="phase3-modal" class="modal-overlay">
+        <!-- Nút đóng thư quay lại không gian 3D -->
+        <button id="close-letter-btn" class="close-btn" title="Đóng thư">✕</button>
+
+        <div class="letter-scene" id="letter-scene">
+            <!-- 1. PHONG BÌ THƯ 3D (Trước khi mở) -->
+            <div class="envelope-wrapper" id="envelope-wrapper">
+                <div class="envelope" id="envelope">
+                    <!-- Nắp phong bì mở 3D -->
+                    <div class="envelope-flap" id="envelope-flap">
+                        <!-- Con dấu sáp đỏ ở giữa -->
+                        <div class="wax-seal" id="wax-seal">
+                            <span class="seal-icon">❤️</span>
+                            <span class="seal-text">DLove</span>
+                        </div>
+                    </div>
+
+                    <!-- Thân phong bì -->
+                    <div class="envelope-pocket"></div>
+
+                    <!-- Họa tiết hoa màu nước trang trí 2 góc phong bì giống video -->
+                    <img src="images/floral_corner.png" class="envelope-flower flower-tl" alt="Hoa trang trí góc trên">
+                    <img src="images/floral_corner.png" class="envelope-flower flower-br" alt="Hoa trang trí góc dưới">
+
+                    <!-- Nội dung in trên phong bì -->
+                    <div class="envelope-content">
+                        <div class="envelope-top-sub">Dành tặng em</div>
+                        <div class="envelope-heart-sym">♥</div>
+                        <div class="envelope-date">20 / 10</div>
+                        <div class="envelope-bot-sub">Một chút yêu thương</div>
+                    </div>
+                </div>
+
+                <!-- Dòng chữ hướng dẫn mở phong bì -->
+                <p class="envelope-hint" id="envelope-hint">Chạm phong bì để mở thư</p>
+            </div>
+
+            <!-- 2. TỜ GIẤY VIẾT THƯ (Trượt lên sau khi phong bì mở) -->
+            <div class="letter-paper" id="letter-paper">
+                <!-- Họa tiết hoa màu nước trang trí góc thư giống video -->
+                <img src="images/floral_corner.png" class="paper-flower flower-top-left" alt="Hoa trang trí thư">
+
+                <!-- Tiêu đề bức thư -->
+                <div class="letter-header">
+                    <h2 class="letter-title" id="letter-title">Gửi vợ yêu của anh ♡</h2>
+                </div>
+
+                <!-- Nội dung lời chúc gõ máy (Typewriter) theo đúng video -->
+                <div class="letter-body" id="letter-body">
+                    <!-- Sẽ được gõ tự động bởi JS -->
+                </div>
+
+                <!-- Chân thư: Nút tương tác và ảnh chân dung có viền hoa ở góc dưới bên phải -->
+                <div class="letter-footer">
+                    <div class="letter-actions">
+                        <button class="action-btn" id="replay-typewriter-btn">📜 Đọc lại thư</button>
+                        <button class="action-btn primary" id="send-hearts-btn">💖 Thả tim cho em</button>
+                    </div>
+
+                    <!-- Khung ảnh chân dung lồng hoa góc dưới bên phải -->
+                    <div class="letter-photo-frame" id="letter-photo-frame">
+                        <img src="images/letter_framed_portrait.png?v=2" alt="Em Bé Anh Anh" id="letter-portrait-img" class="letter-portrait-img">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container cho các hạt tim bay khi bấm thả tim -->
+    <div id="heart-burst-container"></div>
+
+    <script src="script.js?v=5"></script>
+</body>
+</html>
