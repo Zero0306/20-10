@@ -92,17 +92,17 @@ const CONFIG = {
         "Anh yêu bé nhiềuuuuuuuuuuuuu 💖"
     ],
 
-    // Lời bài hát nổi lơ lửng đồng bộ theo thời gian nhạc trong video 20-10.mp4
+    // Lời bài hát nổi lơ lửng đồng bộ theo thời gian nhạc trong video 20-10.mp4 (Định dạng 2 dòng thơ mộng)
     lyricsTimeline: [
-        { time: 0.0, text: '" Chờ anh chút thôi, đã phiền em phải đợi... "' },
-        { time: 3.5, text: '" Có anh ở đây rồi... "' },
-        { time: 5.8, text: '" VẪN GẦN EM THÔI DÙ XA CÁCH PHƯƠNG TRỜI "' },
-        { time: 10.5, text: '" Cầm tay anh, dựa vai anh "' },
-        { time: 13.5, text: '" Kề bên anh nơi này có anh "' },
-        { time: 16.5, text: '" Gió mang câu tình ca, ngàn ánh sao vụt qua nhẹ ôm lấy em... "' },
-        { time: 22.0, text: '" Cầm tay anh, dựa vai anh... "' },
-        { time: 24.5, text: '"* Kề bên anh nơi này có anh *"' },
-        { time: 27.5, text: '"* Nguyện mãi bên cạnh nhau yêu say đắm như ngày đầu *"' }
+        { time: 0.0, text: '“ Chờ anh chút thôi,\nđã phiền em phải đợi... ”' },
+        { time: 3.5, text: '“ Có anh ở đây rồi... ”' },
+        { time: 5.8, text: '“ Vẫn gần em thôi\ndù xa cách phương trời ”' },
+        { time: 10.5, text: '“ Cầm tay anh,\ndựa vai anh ”' },
+        { time: 13.5, text: '“ Kề bên anh\nnơi này có anh ”' },
+        { time: 16.5, text: '“ Ngàn ánh sao\nvụt qua nhẹ ôm lấy em. ”' },
+        { time: 22.0, text: '“ Cầm tay anh,\ndựa vai anh... ”' },
+        { time: 24.5, text: '“ Kề bên anh\nnơi này có anh ”' },
+        { time: 27.5, text: '“ Nguyện mãi bên cạnh nhau\nyêu say đắm như ngày đầu ”' }
     ],
 
     // Nguồn âm thanh trực tiếp từ video 20-10.mp4
@@ -238,7 +238,7 @@ class RomanticSoundManager {
 }
 
 // ============================================================================
-// KHỞI TẠO THREE.JS VŨ TRỤ 3D ĐA TẦNG (CHỨA ĐẦY ĐỦ 41 ẢNH CỦA BẠN GÁI)
+// KHỞI TẠO THREE.JS VŨ TRỤ 3D ĐA TẦNG (CHUẨN TIKTOK I.DLOVE.VN - BILLBOARD HOÀN TOÀN)
 // ============================================================================
 class CosmicUniverse {
     constructor() {
@@ -247,7 +247,7 @@ class CosmicUniverse {
         this.camera = null;
         this.renderer = null;
         this.starsMesh = null;
-        this.starCount = 2000;
+        this.starCount = 2200;
         this.interactiveGroup = null;
         this.clickableObjects = [];
         this.raycaster = new THREE.Raycaster();
@@ -262,7 +262,7 @@ class CosmicUniverse {
 
         const aspect = window.innerWidth / window.innerHeight;
         const isMobile = aspect < 1;
-        this.cameraZ = isMobile ? 180 : 130;
+        this.cameraZ = isMobile ? 165 : 130;
         this.targetCameraZ = this.cameraZ;
         this.currentPhase = 1;
 
@@ -271,7 +271,7 @@ class CosmicUniverse {
 
     init() {
         this.scene = new THREE.Scene();
-        this.scene.fog = new THREE.FogExp2(0x07060d, 0.0025);
+        this.scene.fog = new THREE.FogExp2(0x06030c, 0.002);
 
         const aspect = window.innerWidth / window.innerHeight;
         this.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 2000);
@@ -285,17 +285,9 @@ class CosmicUniverse {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Ánh sáng trắng trong trẻo và ấm áp, không làm ám màu ảnh
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.25);
+        // Ánh sáng trắng trong trẻo và ấm áp
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
         this.scene.add(ambientLight);
-
-        const dirLight = new THREE.DirectionalLight(0xfff5ea, 0.65);
-        dirLight.position.set(40, 80, 100);
-        this.scene.add(dirLight);
-
-        const centerGlow = new THREE.PointLight(0xffccd5, 0.5, 250);
-        centerGlow.position.set(0, 0, 0);
-        this.scene.add(centerGlow);
 
         this.createCosmicStars();
 
@@ -319,8 +311,8 @@ class CosmicUniverse {
         const ctx = c.getContext('2d');
         const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
         gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-        gradient.addColorStop(0.25, 'rgba(255, 182, 193, 0.9)');
-        gradient.addColorStop(0.5, 'rgba(255, 42, 133, 0.4)');
+        gradient.addColorStop(0.25, 'rgba(255, 192, 203, 0.9)');
+        gradient.addColorStop(0.5, 'rgba(255, 42, 133, 0.35)');
         gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 64, 64);
@@ -334,14 +326,14 @@ class CosmicUniverse {
 
         const colorPalette = [
             new THREE.Color(0xffffff),
-            new THREE.Color(0xff85b3),
+            new THREE.Color(0xffb6c1),
             new THREE.Color(0xff2a85),
-            new THREE.Color(0xffd166),
-            new THREE.Color(0xb58ecc)
+            new THREE.Color(0xffe4b5),
+            new THREE.Color(0xd8bfd8)
         ];
 
         for (let i = 0; i < this.starCount; i++) {
-            const radius = 220 + Math.random() * 580;
+            const radius = 200 + Math.random() * 650;
             const theta = Math.random() * Math.PI * 2;
             const phi = Math.acos((Math.random() * 2) - 1);
 
@@ -359,7 +351,7 @@ class CosmicUniverse {
         starGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
         const starMat = new THREE.PointsMaterial({
-            size: 4.5,
+            size: 4.2,
             map: this.createStarTexture(),
             vertexColors: true,
             transparent: true,
@@ -371,232 +363,334 @@ class CosmicUniverse {
         this.scene.add(this.starsMesh);
     }
 
-    createNeonTextTexture(text) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 1024;
-        canvas.height = 256;
-        const ctx = canvas.getContext('2d');
+    createNeonWishTexture(text, sizeType = 'medium') {
+        const isHero = sizeType === 'hero';
+        const isShort = sizeType === 'short';
 
+        const fontSize = isHero ? 62 : (isShort ? 44 : 52);
+        const fontStr = `bold ${fontSize}px "Quicksand", "Nunito", "Montserrat", sans-serif`;
+
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.font = fontStr;
+        const metrics = tempCtx.measureText(text);
+        const textWidth = Math.ceil(metrics.width);
+
+        const padX = isHero ? 60 : 44;
+        const padY = isHero ? 42 : 32;
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(128, textWidth + padX * 2);
+        canvas.height = Math.max(70, fontSize + padY * 2);
+
+        const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        ctx.font = '600 50px "Dancing Script", "Caveat", cursive, sans-serif';
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+
+        ctx.font = fontStr;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
 
-        // Ánh sáng hồng phấn dịu nhẹ, thanh lịch (khử hoàn toàn màu lòe loẹt)
-        ctx.shadowColor = 'rgba(255, 182, 193, 0.85)';
-        ctx.shadowBlur = 14;
+        // Vòng phát sáng rộng bên ngoài (Aura hồng neon)
+        ctx.save();
+        ctx.strokeStyle = '#ff1493';
+        ctx.lineWidth = isHero ? 9 : 7;
+        ctx.shadowColor = '#ff2a85';
+        ctx.shadowBlur = isHero ? 20 : 16;
+        ctx.strokeText(text, cx, cy);
+        ctx.restore();
+
+        // Viền nét hồng cánh sen sắc nét
+        ctx.save();
+        ctx.strokeStyle = '#ff007f';
+        ctx.lineWidth = isHero ? 5 : 4;
+        ctx.shadowColor = '#ff1493';
+        ctx.shadowBlur = 8;
+        ctx.strokeText(text, cx, cy);
+        ctx.restore();
+
+        // Lòng chữ trắng tinh khôi sáng rõ chuẩn TikTok i.dlove.vn
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+        ctx.fillText(text, cx, cy);
 
         const texture = new THREE.CanvasTexture(canvas);
         texture.minFilter = THREE.LinearFilter;
+        texture.generateMipmaps = false;
+
+        return {
+            texture,
+            aspect: canvas.width / canvas.height,
+            width: canvas.width,
+            height: canvas.height
+        };
+    }
+
+    createNeonPhotoCard(img) {
+        const cardW = 320;
+        const cardH = 380;
+        const radius = 24;
+        const pad = 6;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = cardW;
+        canvas.height = cardH;
+        const ctx = canvas.getContext('2d');
+
+        const drawRRect = (x, y, w, h, r) => {
+            ctx.beginPath();
+            if (ctx.roundRect) {
+                ctx.roundRect(x, y, w, h, r);
+            } else {
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + w - r, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                ctx.lineTo(x + w, y + h - r);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                ctx.lineTo(x + r, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+            }
+            ctx.closePath();
+        };
+
+        const innerW = cardW - pad * 2;
+        const innerH = cardH - pad * 2;
+
+        // 1. Cắt góc bo tròn mềm mại cho ảnh của người yêu
+        ctx.save();
+        drawRRect(pad, pad, innerW, innerH, radius);
+        ctx.clip();
+
+        const imgW = img.naturalWidth || img.width || 300;
+        const imgH = img.naturalHeight || img.height || 300;
+        const imgAspect = imgW / imgH;
+        const targetAspect = innerW / innerH;
+
+        let sx = 0, sy = 0, sw = imgW, sh = imgH;
+        if (imgAspect > targetAspect) {
+            sw = imgH * targetAspect;
+            sx = (imgW - sw) / 2;
+        } else {
+            sh = imgW / targetAspect;
+            sy = Math.max(0, (imgH - sh) * 0.22); // Canh khuôn mặt xinh xắn
+        }
+        ctx.drawImage(img, sx, sy, sw, sh, pad, pad, innerW, innerH);
+        ctx.restore();
+
+        // 2. Viền neon hồng phát sáng tinh tế
+        ctx.save();
+        drawRRect(pad, pad, innerW, innerH, radius);
+        ctx.strokeStyle = '#ff2a85';
+        ctx.lineWidth = 4;
+        ctx.shadowColor = '#ff1493';
+        ctx.shadowBlur = 14;
+        ctx.stroke();
+        ctx.restore();
+
+        // 3. Đường line trắng mảnh viền trong
+        ctx.save();
+        drawRRect(pad + 1.5, pad + 1.5, innerW - 3, innerH - 3, radius - 1.5);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.restore();
+
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.minFilter = THREE.LinearFilter;
+        texture.generateMipmaps = false;
         return texture;
     }
 
-    createHeartMesh(colorHex = 0xff85a1, scale = 1) {
-        const shape = new THREE.Shape();
-        const x = 0, y = 0;
-        shape.moveTo(x + 2.5, y + 2.5);
-        shape.bezierCurveTo(x + 2.5, y + 2.5, x + 2.0, y + 4.5, x, y + 4.5);
-        shape.bezierCurveTo(x - 3.0, y + 4.5, x - 3.0, y + 1.5, x - 3.0, y + 1.5);
-        shape.bezierCurveTo(x - 3.0, y - 0.5, x - 1.0, y - 2.5, x + 2.5, y - 5.5);
-        shape.bezierCurveTo(x + 6.0, y - 2.5, x + 8.0, y - 0.5, x + 8.0, y + 1.5);
-        shape.bezierCurveTo(x + 8.0, y + 1.5, x + 8.0, y + 4.5, x + 5.0, y + 4.5);
-        shape.bezierCurveTo(x + 3.5, y + 4.5, x + 2.5, y + 2.5, x + 2.5, y + 2.5);
+    createGlowingHeartTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
 
-        const extrudeSettings = {
-            depth: 0.35,
-            bevelEnabled: true,
-            bevelSegments: 3,
-            steps: 1,
-            bevelSize: 0.2,
-            bevelThickness: 0.2
-        };
+        ctx.save();
+        ctx.shadowColor = '#ff1493';
+        ctx.shadowBlur = 18;
+        ctx.font = '74px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('❤️', 64, 68);
+        ctx.restore();
 
-        const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-        geometry.center();
-
-        const material = new THREE.MeshPhongMaterial({
-            color: colorHex,
-            emissive: 0x221118,
-            specular: 0xffffff,
-            shininess: 85,
-            transparent: true,
-            opacity: 0.88
-        });
-
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.scale.set(scale, scale, scale);
-        mesh.userData = { isClickable: true, type: 'heart' };
-        return mesh;
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.minFilter = THREE.LinearFilter;
+        texture.generateMipmaps = false;
+        return texture;
     }
 
-    // Xây dựng vũ trụ 3D tràn ngập toàn bộ 41 bức ảnh của Em Bé Anh Anh
     buildGalaxyContent() {
-        const textureLoader = new THREE.TextureLoader();
+        const isMobile = (window.innerWidth / window.innerHeight) < 1;
 
-        // 1. TRÁI TIM ĐẶC BIỆT CHÍNH GIỮA (Nhẹ nhàng, thanh tú)
-        const specialHeart = this.createHeartMesh(0xff5c8a, 2.2);
-        specialHeart.position.set(0, 0, 0);
-        specialHeart.userData = { isClickable: true, isSpecialHeart: true, type: 'specialHeart' };
-        this.interactiveGroup.add(specialHeart);
-        this.clickableObjects.push(specialHeart);
-        this.specialHeart = specialHeart;
-
-        const ringGeo = new THREE.RingGeometry(15, 16.2, 64);
-        const ringMat = new THREE.MeshBasicMaterial({
-            color: 0xffd1dc,
-            side: THREE.DoubleSide,
+        // 1. TẠO CÂU CHÚC TIÊU ĐIỂM (HERO WISH) CHÍNH GIỮA TIỀN CẢNH: "Chúc em luôn vui vẻ và hạnh phúc"
+        const heroWish = this.createNeonWishTexture("Chúc em luôn vui vẻ và hạnh phúc", "hero");
+        const heroMat = new THREE.SpriteMaterial({
+            map: heroWish.texture,
             transparent: true,
-            opacity: 0.5
+            depthWrite: false
         });
-        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-        ringMesh.rotation.x = Math.PI / 2.3;
-        specialHeart.add(ringMesh);
-        this.specialRing = ringMesh;
+        const heroSprite = new THREE.Sprite(heroMat);
+        const heroW = isMobile ? 36 : 42;
+        heroSprite.scale.set(heroW, heroW / heroWish.aspect, 1);
+        heroSprite.position.set(0, 1.2, isMobile ? 70 : 66);
+        heroSprite.userData = {
+            isClickable: true,
+            type: 'wish',
+            basePos: new THREE.Vector3(0, 1.2, isMobile ? 70 : 66),
+            floatOffset: 0
+        };
+        this.interactiveGroup.add(heroSprite);
+        this.clickableObjects.push(heroSprite);
 
-        // 2. PHÂN BỐ TOÀN BỘ 41 KHUNG ẢNH POLAROID THANH LỊCH (TỐI ƯU HOÀN HẢO CHO MÀN HÌNH ĐIỆN THOẠI)
-        const photoList = CONFIG.galaxyPhotos;
-        const photoCount = photoList.length;
+        // 2. DANH SÁCH TOÀN BỘ CÁC LỜI CHÚC & TỪ NGỮ ĐA TẦNG (CHUẨN TIKTOK I.DLOVE.VN)
+        const wishesData = [
+            { text: "Chúc em luôn yêu đời", type: "medium" },
+            { text: "Chúc em luôn xinh đẹp", type: "medium" },
+            { text: "yêu em", type: "short" },
+            { text: "20/10", type: "short" },
+            { text: "mãi yêu em", type: "short" },
+            { text: "Chúc em luôn yêu đời", type: "medium" },
+            { text: "chúc em thật nhiều may mắn", type: "medium" },
+            { text: "yêu em", type: "short" },
+            { text: "Mong mọi điều dịu dàng sẽ đến với em", type: "medium" },
+            { text: "20/10", type: "short" },
+            { text: "mãi yêu em", type: "short" },
+            { text: "Chúc em luôn xinh đẹp", type: "medium" },
+            { text: "yêu em", type: "short" },
+            { text: "chúc mừng ngày phụ nữ việt nam", type: "medium" },
+            { text: "20/10", type: "short" },
+            { text: "Yêu em nhiều hơn mỗi ngày", type: "medium" },
+            { text: "yêu em", type: "short" },
+            { text: "mãi yêu em", type: "short" },
+            { text: "Chúc em luôn yêu đời", type: "medium" },
+            { text: "Nụ cười của em là điều ngọt ngào nhất", type: "medium" },
+            { text: "20/10", type: "short" },
+            { text: "yêu em", type: "short" },
+            { text: "chúc em thật nhiều may mắn", type: "medium" },
+            { text: "mãi yêu em", type: "short" },
+            { text: "20/10", type: "short" },
+            { text: "Chúc em luôn xinh đẹp", type: "medium" },
+            { text: "yêu em", type: "short" },
+            { text: "mãi yêu em", type: "short" },
+            { text: "Chúc em luôn hạnh phúc", type: "medium" },
+            { text: "20/10", type: "short" },
+            { text: "yêu em", type: "short" },
+            { text: "Luôn rạng rỡ như ánh mặt trời", type: "medium" },
+            { text: "20/10", type: "short" }
+        ];
 
-        // Texture mặt sau ảnh màu trắng ngà in trái tim hồng phấn
-        const backCanvas = document.createElement('canvas');
-        backCanvas.width = 128;
-        backCanvas.height = 152;
-        const bctx = backCanvas.getContext('2d');
-        bctx.fillStyle = '#fffdfa';
-        bctx.fillRect(0, 0, 128, 152);
-        bctx.fillStyle = '#ffb6c1';
-        bctx.font = '24px sans-serif';
-        bctx.textAlign = 'center';
-        bctx.textBaseline = 'middle';
-        bctx.fillText('♥', 64, 76);
-        const cardBackTex = new THREE.CanvasTexture(backCanvas);
-
-        const isMobileView = (window.innerWidth / window.innerHeight) < 1;
-        const cardW = isMobileView ? 11.5 : 14;
-        const cardH = isMobileView ? 13.8 : 16.8;
-        const photoSize = isMobileView ? 10.3 : 12.6;
-
-        photoList.forEach((src, idx) => {
-            // Phân bố đều hình trụ theo góc Hoàng kim (137.5 độ)
-            const yOffset = -38 + (idx / (photoCount - 1)) * 76;
-            const radius = (isMobileView ? 52 : 58) + (idx % 3) * 6;
-            const angle = idx * 2.39996323;
-
-            textureLoader.load(src, (tex) => {
-                tex.minFilter = THREE.LinearFilter;
-                tex.generateMipmaps = false;
-
-                const cardGroup = new THREE.Group();
-
-                // Mặt trước tấm bìa Polaroid màu trắng sạch sẽ
-                const cardGeo = new THREE.PlaneGeometry(cardW, cardH);
-                const cardMatFront = new THREE.MeshBasicMaterial({ color: 0xffffff });
-                const cardFrontMesh = new THREE.Mesh(cardGeo, cardMatFront);
-                cardGroup.add(cardFrontMesh);
-
-                // Mặt sau tấm bìa
-                const cardMatBack = new THREE.MeshBasicMaterial({ map: cardBackTex, side: THREE.BackSide });
-                const cardBackMesh = new THREE.Mesh(cardGeo, cardMatBack);
-                cardGroup.add(cardBackMesh);
-
-                // Bức ảnh người yêu đặt trên bìa Polaroid (Màu sắc gốc tự nhiên, trong trẻo)
-                const photoGeo = new THREE.PlaneGeometry(photoSize, photoSize);
-                const photoMat = new THREE.MeshBasicMaterial({
-                    map: tex,
-                    side: THREE.FrontSide
-                });
-                const photoMesh = new THREE.Mesh(photoGeo, photoMat);
-                photoMesh.position.set(0, (cardH - photoSize) * 0.28, 0.05);
-                cardGroup.add(photoMesh);
-
-                const x = Math.cos(angle) * radius;
-                const z = Math.sin(angle) * radius;
-                cardGroup.position.set(x, yOffset, z);
-
-                cardGroup.lookAt(0, yOffset * 0.1, 0);
-                cardGroup.rotateY(Math.PI);
-
-                cardGroup.userData = {
-                    isClickable: true,
-                    type: 'photo',
-                    baseY: yOffset,
-                    angle: angle,
-                    radius: radius
-                };
-
-                this.interactiveGroup.add(cardGroup);
-                this.clickableObjects.push(photoMesh, cardFrontMesh);
-            });
+        // 3. TẠO 16 TRÁI TIM PHÁT SÁNG BAY XUNG QUANH
+        const heartTex = this.createGlowingHeartTexture();
+        const heartMat = new THREE.SpriteMaterial({
+            map: heartTex,
+            transparent: true,
+            depthWrite: false
         });
 
-        // 3. CÁC CỤM TỪ LỜI CHÚC TRÔI NỔI THANH THOÁT
-        const wishes = CONFIG.wishes;
-        const wishRadius = isMobileView ? 74 : 85;
-        wishes.forEach((wishText, i) => {
-            const angle = (i / wishes.length) * Math.PI * 2 + 0.35;
-            const y = ((i % 4) - 1.5) * 22 + (Math.sin(i * 1.5) * 4);
-
-            const textTex = this.createNeonTextTexture(wishText);
-            const planeGeo = new THREE.PlaneGeometry(isMobileView ? 24 : 32, isMobileView ? 6 : 8);
-            const planeMat = new THREE.MeshBasicMaterial({
-                map: textTex,
-                transparent: true,
-                side: THREE.DoubleSide
-            });
-            const textMesh = new THREE.Mesh(planeGeo, planeMat);
-
-            const x = Math.cos(angle) * wishRadius;
-            const z = Math.sin(angle) * wishRadius;
-            textMesh.position.set(x, y, z);
-            textMesh.lookAt(0, y, 0);
-            textMesh.rotateY(Math.PI);
-
-            textMesh.userData = {
-                isClickable: true,
-                type: 'wish',
-                angle: angle,
-                baseY: y,
-                radius: wishRadius
-            };
-
-            this.interactiveGroup.add(textMesh);
-            this.clickableObjects.push(textMesh);
-        });
-
-        // 4. TRÁI TIM NHỎ BAY LƠ LỬNG NHƯ BỤI TIÊN
-        const heartCount = 18;
-        const heartColors = [0xff85a1, 0xffa8ba, 0xff6584, 0xffd6a5];
-        for (let h = 0; h < heartCount; h++) {
-            const heartColor = heartColors[h % heartColors.length];
-            const heartScale = isMobileView ? (0.4 + Math.random() * 0.3) : (0.55 + Math.random() * 0.4);
-            const heart = this.createHeartMesh(heartColor, heartScale);
-
-            const hRadius = (isMobileView ? 38 : 45) + Math.random() * (isMobileView ? 42 : 55);
-            const hAngle = Math.random() * Math.PI * 2;
-            const hy = (Math.random() - 0.5) * 60;
-
-            heart.position.set(
-                Math.cos(hAngle) * hRadius,
-                hy,
-                Math.sin(hAngle) * hRadius
-            );
-
-            heart.userData = {
-                isClickable: true,
-                type: 'heart',
-                baseY: hy,
-                angle: hAngle,
-                radius: hRadius,
-                rotSpeedX: 0.008 + Math.random() * 0.015,
-                rotSpeedY: 0.008 + Math.random() * 0.015
-            };
-
-            this.interactiveGroup.add(heart);
-            this.clickableObjects.push(heart);
+        // 4. TẬP HỢP TOÀN BỘ 90 PHẦN TỬ (41 ẢNH + 33 LỜI CHÚC + 16 TRÁI TIM) VÀ TRỘN ĐỀU
+        const items = [];
+        CONFIG.galaxyPhotos.forEach(src => items.push({ kind: 'photo', src }));
+        wishesData.forEach(w => items.push({ kind: 'wish', text: w.text, sizeType: w.type }));
+        for (let h = 0; h < 16; h++) {
+            items.push({ kind: 'heart' });
         }
+
+        // Shuffle nhẹ theo bước nhảy số nguyên tố để phân bổ đều khắp không gian
+        const totalItems = items.length;
+        const shuffled = [];
+        const step = 17;
+        const visited = new Set();
+        for (let i = 0; i < totalItems; i++) {
+            let idx = (i * step) % totalItems;
+            while (visited.has(idx)) {
+                idx = (idx + 1) % totalItems;
+            }
+            visited.add(idx);
+            shuffled.push(items[idx]);
+        }
+
+        // 5. PHÂN BỐ ĐỀU TRÊN HÌNH CẦU FIBONACCI (FIBONACCI SPHERE)
+        const baseR = isMobile ? 74 : 70;
+        const goldenAngle = 2.39996323;
+
+        shuffled.forEach((item, k) => {
+            const yNorm = 1 - ((k + 0.5) / totalItems) * 2; // từ đỉnh trên xuống đáy dưới
+            const rNorm = Math.sqrt(Math.max(0.04, 1 - yNorm * yNorm));
+            const theta = k * goldenAngle;
+
+            // Biến thiên bán kính r để tạo độ dày 3D đa tầng mềm mại
+            const radiusJitter = 0.82 + ((k * 37) % 100) / 100 * 0.34;
+            const r = baseR * radiusJitter;
+
+            const x = Math.cos(theta) * rNorm * r;
+            const y = yNorm * r * (isMobile ? 1.08 : 0.96);
+            const z = Math.sin(theta) * rNorm * r;
+
+            if (item.kind === 'photo') {
+                const img = new Image();
+                img.onload = () => {
+                    const photoTex = this.createNeonPhotoCard(img);
+                    const mat = new THREE.SpriteMaterial({
+                        map: photoTex,
+                        transparent: true,
+                        depthWrite: false
+                    });
+                    const sprite = new THREE.Sprite(mat);
+                    const photoW = isMobile ? 15.5 : 17.5;
+                    const photoH = photoW * (380 / 320);
+                    sprite.scale.set(photoW, photoH, 1);
+                    sprite.position.set(x, y, z);
+                    sprite.userData = {
+                        isClickable: true,
+                        type: 'photo',
+                        basePos: new THREE.Vector3(x, y, z),
+                        floatOffset: k * 0.22
+                    };
+                    this.interactiveGroup.add(sprite);
+                    this.clickableObjects.push(sprite);
+                };
+                img.src = item.src;
+            } else if (item.kind === 'wish') {
+                const wishObj = this.createNeonWishTexture(item.text, item.sizeType);
+                const mat = new THREE.SpriteMaterial({
+                    map: wishObj.texture,
+                    transparent: true,
+                    depthWrite: false
+                });
+                const sprite = new THREE.Sprite(mat);
+                const wScale = item.sizeType === 'short' ? (isMobile ? 15 : 18) : (isMobile ? 26 : 30);
+                sprite.scale.set(wScale, wScale / wishObj.aspect, 1);
+                sprite.position.set(x, y, z);
+                sprite.userData = {
+                    isClickable: true,
+                    type: 'wish',
+                    basePos: new THREE.Vector3(x, y, z),
+                    floatOffset: k * 0.22
+                };
+                this.interactiveGroup.add(sprite);
+                this.clickableObjects.push(sprite);
+            } else if (item.kind === 'heart') {
+                const sprite = new THREE.Sprite(heartMat);
+                const hSize = isMobile ? 5.5 : 6.5;
+                sprite.scale.set(hSize, hSize, 1);
+                sprite.position.set(x, y, z);
+                sprite.userData = {
+                    isClickable: true,
+                    type: 'heart',
+                    basePos: new THREE.Vector3(x, y, z),
+                    floatOffset: k * 0.22
+                };
+                this.interactiveGroup.add(sprite);
+                this.clickableObjects.push(sprite);
+            }
+        });
     }
 
     setupEventListeners() {
@@ -621,9 +715,9 @@ class CosmicUniverse {
                 this.hasMovedSignificantly = true;
             }
 
-            this.targetRotationY += deltaX * 0.0045;
-            this.targetRotationX += deltaY * 0.003;
-            this.targetRotationX = Math.max(-0.6, Math.min(0.6, this.targetRotationX));
+            this.targetRotationY += deltaX * 0.005;
+            this.targetRotationX += deltaY * 0.0035;
+            this.targetRotationX = Math.max(-0.48, Math.min(0.48, this.targetRotationX));
 
             this.prevPointerPos = { x: clientX, y: clientY };
         };
@@ -642,7 +736,7 @@ class CosmicUniverse {
         const onWheel = (e) => {
             if (this.currentPhase !== 2) return;
             this.targetCameraZ += e.deltaY * 0.08;
-            this.targetCameraZ = Math.max(80, Math.min(260, this.targetCameraZ));
+            this.targetCameraZ = Math.max(90, Math.min(240, this.targetCameraZ));
         };
 
         window.addEventListener('resize', () => {
@@ -652,7 +746,7 @@ class CosmicUniverse {
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             const isMobile = aspect < 1;
-            this.targetCameraZ = isMobile ? 180 : 130;
+            this.targetCameraZ = isMobile ? 165 : 130;
         });
 
         window.addEventListener('pointerdown', onPointerDown, { passive: true });
@@ -719,24 +813,11 @@ class CosmicUniverse {
             this.cameraZ += (this.targetCameraZ - this.cameraZ) * 0.08;
             this.camera.position.z = this.cameraZ;
 
-            if (this.specialHeart) {
-                const beat = 1 + Math.sin(time * 3.5) * 0.12;
-                this.specialHeart.scale.set(2.2 * beat, 2.2 * beat, 2.2 * beat);
-                this.specialHeart.rotation.y += 0.015;
-            }
-
-            if (this.specialRing) {
-                this.specialRing.rotation.z += 0.02;
-            }
-
+            // Micro-animation trôi nổi nhẹ nhàng cho từng phần tử
             this.interactiveGroup.children.forEach((child) => {
-                if (child.userData && child.userData.baseY !== undefined) {
-                    child.position.y = child.userData.baseY + Math.sin(time * 2 + child.userData.angle) * 3;
-
-                    if (child.userData.type === 'heart') {
-                        child.rotation.x += child.userData.rotSpeedX || 0.01;
-                        child.rotation.y += child.userData.rotSpeedY || 0.01;
-                    }
+                if (child.userData && child.userData.basePos) {
+                    const bp = child.userData.basePos;
+                    child.position.y = bp.y + Math.sin(time * 1.6 + child.userData.floatOffset) * 1.6;
                 }
             });
         }
